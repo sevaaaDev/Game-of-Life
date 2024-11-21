@@ -20,7 +20,15 @@ describe("Game of life", () => {
     expect(squares[1]).toHaveAttribute("data-alive", "true");
     expect(squares[2]).toHaveAttribute("data-alive", "false");
   });
-  it.todo("can unalive a cell with click");
+  it("can unalive a cell with click", async () => {
+    let user = userEvent.setup();
+    render(<GameOfLife />);
+    let squares = screen.getAllByTestId("square");
+    await user.click(squares[0]);
+    expect(squares[0]).toHaveAttribute("data-alive", "true");
+    await user.click(squares[0]);
+    expect(squares[0]).toHaveAttribute("data-alive", "false");
+  });
   it("can go back to previous generation", async () => {
     let user = userEvent.setup();
     render(<GameOfLife />);
@@ -47,6 +55,7 @@ describe("Game of life", () => {
     let prevBtn = screen.getByTestId("btn-prev");
     await user.click(squares[0]);
     await user.click(squares[1]);
+    // FIX: flakey test
     await user.click(squares[50]);
     await user.click(squares[51]);
     expect(squares[0]).toHaveAttribute("data-alive", "true");

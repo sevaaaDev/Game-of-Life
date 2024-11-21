@@ -28,10 +28,14 @@ export function GameOfLife() {
     ]);
   }
   function setALive(index) {
-    let firstI = Math.floor(index / currentGen.length);
-    let secondI = index % currentGen.length;
+    let firstI = Math.floor(index / col);
+    let secondI = index % col;
     let newGrid = currentGen.slice();
-    newGrid[firstI][secondI] = 1;
+    let state = 1;
+    if (newGrid[firstI][secondI]) {
+      state = 0;
+    }
+    newGrid[firstI][secondI] = state;
     setGrid([newGrid, grid[1]]);
   }
   return (
