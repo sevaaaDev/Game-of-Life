@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getNextGen } from "../functions/getNextGen";
 import styled from "styled-components";
 import deepEqual from "deep-equal";
+import { fillRandom } from "../functions/fillRandom";
 
 const initGrid = Array(50).fill(Array(50).fill(0));
 
@@ -46,6 +47,13 @@ export function GameOfLife() {
     setGrid([newGrid, grid[1]]);
   }
 
+  function setRandom() {
+    let newGrid = fillRandom(currentGen);
+    // FIX: overflowing
+    console.log(newGrid);
+    setGrid([newGrid, currentGen]);
+  }
+
   useEffect(() => {
     if (!run) {
       clearInterval(intervalId);
@@ -77,20 +85,41 @@ export function GameOfLife() {
           disabled={!grid[1] && true}
           onClick={prevGen}
           data-testid="btn-prev"
+          title="Previous"
         >
           <IconPrev />
         </button>
-        <button onClick={() => setRun(!run)}>
-          <IconRun />
+        <button onClick={() => setRun(!run)} title={!run ? "Run" : "Pause"}>
+          {!run ? <IconRun /> : <IconPause />}
         </button>
-        <button onClick={nextGen} data-testid="btn-next">
+        <button onClick={nextGen} data-testid="btn-next" title="Next">
           <IconNext />
         </button>
-        <button onClick={reset} data-testid="btn-reset">
+        <button onClick={reset} data-testid="btn-reset" title="Reset">
           <IconReset />
         </button>
+        <button onClick={setRandom}>random</button>
       </BtnContainer>
     </>
+  );
+}
+
+function IconPause() {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 15 15"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M6.04995 2.74998C6.04995 2.44623 5.80371 2.19998 5.49995 2.19998C5.19619 2.19998 4.94995 2.44623 4.94995 2.74998V12.25C4.94995 12.5537 5.19619 12.8 5.49995 12.8C5.80371 12.8 6.04995 12.5537 6.04995 12.25V2.74998ZM10.05 2.74998C10.05 2.44623 9.80371 2.19998 9.49995 2.19998C9.19619 2.19998 8.94995 2.44623 8.94995 2.74998V12.25C8.94995 12.5537 9.19619 12.8 9.49995 12.8C9.80371 12.8 10.05 12.5537 10.05 12.25V2.74998Z"
+        fill="currentColor"
+      />
+    </svg>
   );
 }
 
@@ -162,6 +191,9 @@ const BtnContainer = styled.div`
   & button {
     border: none;
     background-color: white;
+  }
+  & button[disabled] {
+    opacity: 0.2;
   }
 `;
 
