@@ -1,70 +1,20 @@
-import { useEffect, useState } from "react";
-import { getNextGen } from "../functions/getNextGen";
 import styled from "styled-components";
-import deepEqual from "deep-equal";
-import { fillRandom } from "../functions/fillRandom";
+import { useGameOfLife } from "../hooks/useGameOfLife";
 
 const initGrid = Array(50).fill(Array(50).fill(0));
 
-const row = 30;
-const col = 50;
 export function GameOfLife() {
-  const [grid, setGrid] = useState([
-    initGrid.map((el) => el.slice()),
-    initGrid.map((el) => el.slice()),
-  ]);
-  const [run, setRun] = useState(false);
-  const [intervalId, setId] = useState(null);
-  const [second, setSecond] = useState(0);
-  let currentGen = grid[0];
-  function nextGen() {
-    setGrid(([currentGen, prevGen]) => {
-      let next = getNextGen(currentGen);
-      if (deepEqual(next.flat(), currentGen.flat())) {
-        return [currentGen, prevGen];
-      }
-      return [next, currentGen];
-    });
-  }
-  function prevGen() {
-    setGrid([grid[1]]);
-  }
-  function reset() {
-    setGrid([
-      initGrid.map((el) => el.slice()),
-      initGrid.map((el) => el.slice()),
-    ]);
-  }
-  function setALive(index) {
-    let firstI = Math.floor(index / col);
-    let secondI = index % col;
-    let newGrid = currentGen.slice();
-    let state = 1;
-    if (newGrid[firstI][secondI]) {
-      state = 0;
-    }
-    newGrid[firstI][secondI] = state;
-    setGrid([newGrid, grid[1]]);
-  }
-
-  function setRandom() {
-    let newGrid = fillRandom(currentGen);
-    setGrid([newGrid, currentGen]);
-  }
-
-  useEffect(() => {
-    if (!run) {
-      clearInterval(intervalId);
-      return;
-    }
-    let id = setInterval(() => {
-      nextGen();
-    }, 200);
-    setId(id);
-    return () => {
-      clearInterval(id);
-    };
-  }, [run]);
+  const {
+    currentGen,
+    nextGen,
+    prevGen,
+    toggleCell,
+    reset,
+    randomize,
+    run,
+    isRun,
+    population,
+  } = useGameOfLife(initGrid);
   return (
     <>
       <Grid $cols={currentGen[0].length}>
@@ -74,21 +24,16 @@ export function GameOfLife() {
             data-testid="square"
             data-alive={el ? "true" : "false"}
             $alive={Number(el)}
-            onClick={() => setALive(i)}
+            onClick={() => toggleCell(i)}
           />
         ))}
       </Grid>
-      <BtnContainer>
-        <button
-          disabled={!grid[1] && true}
-          onClick={prevGen}
-          data-testid="btn-prev"
-          title="Previous"
-        >
+      <Container>
+        <button onClick={prevGen} data-testid="btn-prev" title="Previous">
           <IconPrev />
         </button>
-        <button onClick={() => setRun(!run)} title={!run ? "Run" : "Pause"}>
-          {!run ? <IconRun /> : <IconPause />}
+        <button onClick={run} title={!isRun ? "Run" : "Pause"}>
+          {!isRun ? <IconRun /> : <IconPause />}
         </button>
         <button onClick={nextGen} data-testid="btn-next" title="Next">
           <IconNext />
@@ -96,8 +41,8 @@ export function GameOfLife() {
         <button onClick={reset} data-testid="btn-reset" title="Reset">
           <IconReset />
         </button>
-        <button onClick={setRandom}>random</button>
-      </BtnContainer>
+        <button onClick={randomize}>random</button>
+      </Container>
     </>
   );
 }
@@ -183,7 +128,7 @@ const Cell = styled.div`
   background-color: ${(props) => (props.$alive ? "black" : "transparent")};
 `;
 
-const BtnContainer = styled.div`
+const Container = styled.div`
   display: flex;
   gap: 1rem;
   & button {

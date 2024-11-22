@@ -1,4 +1,4 @@
-import { describe, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import userEvent from "@testing-library/user-event";
 import { screen, render } from "@testing-library/react";
 import { GameOfLife } from "../GameOfLife.jsx";
